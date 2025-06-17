@@ -11,10 +11,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.post("/api/exchange-token", async (req, res) => {
-  const { code, redirect_uri } = req.body;
-  
-  try {
+// Async handler utility
+const asyncHandler = (fn) => (req, res, next) =>
+  Promise.resolve(fn(req, res, next)).catch(next);
+
+app.post(
+  "/api/exchange-token",
+  asyncHandler(async (req, res) => {
+    const { code, redirect_uri } = req.body;
     const response = await axios.post(
       "https://public-api.wordpress.com/oauth2/token",
       new URLSearchParams({
@@ -27,9 +31,15 @@ app.post("/api/exchange-token", async (req, res) => {
       { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
     );
     res.json(response.data);
-  } catch (err) {
-    res.status(500).json({ error: err.message, details: err.response?.data });
-  }
+  })
+);
+
+// Centralized error handler
+app.use((err, req, res) => {
+  res.status(500).json({
+    error: err.message,
+    details: err.response?.data,
+  });
 });
 
 app.listen(4000, () => console.log("Backend running on http://localhost:4000"));
