@@ -5,7 +5,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
-const { WPCC_CLIENT_ID, WPCC_CLIENT_SECRET } = process.env;
+const { VITE_WPCC_CLIENT_ID, VITE_WPCC_CLIENT_SECRET } = process.env;
 
 const app = express();
 app.use(cors());
@@ -13,12 +13,13 @@ app.use(express.json());
 
 app.post("/api/exchange-token", async (req, res) => {
   const { code, redirect_uri } = req.body;
+  
   try {
     const response = await axios.post(
       "https://public-api.wordpress.com/oauth2/token",
       new URLSearchParams({
-        client_id: WPCC_CLIENT_ID,
-        client_secret: WPCC_CLIENT_SECRET,
+        client_id: VITE_WPCC_CLIENT_ID,
+        client_secret: VITE_WPCC_CLIENT_SECRET,
         redirect_uri,
         code,
         grant_type: "authorization_code",
